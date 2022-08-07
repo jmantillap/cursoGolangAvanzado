@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"sync"
 	"time"
 )
 
-// Function to calculate fibonacci
 func Fibonacci(n int) int {
 	if n <= 1 {
 		return n
@@ -16,6 +17,7 @@ func Fibonacci(n int) int {
 type Memory struct {
 	f     Function
 	cache map[int]FunctionResult
+	lock  sync.Mutex
 }
 
 type Function func(key int) (interface{}, error)
@@ -33,30 +35,38 @@ func NewCache(f Function) *Memory {
 }
 
 func (m *Memory) Get(key int) (interface{}, error) {
-	result, exist := m.cache[key]
-	if !exist {
+	m.lock.Lock()
+	result, exists := m.cache[key]
+	m.lock.Unlock()
+	if !exists {
+		m.lock.Lock()
 		result.value, result.err = m.f(key)
 		m.cache[key] = result
+		m.lock.Unlock()
 	}
 	return result.value, result.err
 }
 
-// Function to be used in the cache
-func GetFibonacci(key int) (interface{}, error) {
-	return Fibonacci(key), nil
+func GetFibonacci(n int) (interface{}, error) {
+	return Fibonacci(n), nil
 }
 
 func main() {
 	cache := NewCache(GetFibonacci)
-	fibo := []int{42, 40, 41, 42, 38, 50, 13, 50}
+	fibo := []int{42, 40, 41, 42, 38}
+	var wg sync.WaitGroup
+	for _, n := range fibo {
+		wg.Add(1)
+		go func(index int) {
+			defer wg.Done()
+			start := time.Now()
+			value, err := cache.Get(index)
+			if err != nil {
+				log.Println(err)
+			}
+			fmt.Printf("%d, %s, %d\n", index, time.Since(start), value)
+		}(n)
 
-	for _, v := range fibo {
-		start := time.Now()
-
-		value, err := cache.Get(v)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Printf("%d: %d t: %s \n", v, value, time.Since(start))
 	}
+	wg.Wait()
 }
