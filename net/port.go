@@ -10,6 +10,7 @@ func main() {
 		// 1, 2, ..4, 99  , 65535
 		// sitio:1, sitio:2, sitio:99, ...,
 		// 1 -> Open,  2 -> Closed, ...
+
 		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", "scanme.nmap.org", i))
 		//conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", "192.168.1.14", i))
 		if err != nil {
