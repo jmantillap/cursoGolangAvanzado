@@ -11,6 +11,7 @@ func main() {
 		// sitio:1, sitio:2, sitio:99, ...,
 		// 1 -> Open,  2 -> Closed, ...
 		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", "scanme.nmap.org", i))
+		//conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", "192.168.1.14", i))
 		if err != nil {
 			fmt.Printf("Port %d is close\n", i)
 			continue
