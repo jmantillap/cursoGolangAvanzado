@@ -14,6 +14,7 @@ var (
 	host = flag.String("h", "localhost", "host")
 )
 
+//CLIENTE CHAT
 func main() {
 	flag.Parse()
 
